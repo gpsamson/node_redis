@@ -722,6 +722,7 @@ function normal_reply (self, reply) {
             reply = self.handle_reply(reply, command_obj.command, command_obj.buffer_args);
         }
         command_obj.callback(null, reply);
+        self.emit('reply', command_obj, repl
     } else {
         debug('No callback for reply');
     }
