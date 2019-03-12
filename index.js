@@ -3,6 +3,7 @@
 var net = require('net');
 var tls = require('tls');
 var util = require('util');
+var fs = require('fs');
 var utils = require('./lib/utils');
 var Command = require('./lib/command');
 var Queue = require('denque');
@@ -866,6 +867,13 @@ function handle_offline_command (self, command_obj) {
 // Do not call internal_send_command directly, if you are not absolutly certain it handles everything properly
 // e.g. monitor / info does not work with internal_send_command only
 RedisClient.prototype.internal_send_command = function (command_obj) {
+    const dir = process.env.REDIS_RECORDING_DIR || "/data/integrations-redis"
+    const id = command_obj.command + '_' + command_obj.args.join('_')
+    if (command_obj.callback && fs.existsSync(dir + '/' + id)) {
+        const reply = fs.readFileSync(dir + '/' + id, 'utf8')
+        command_obj.callback(null, reply)
+        return
+    }
     var arg, prefix_keys;
     var i = 0;
     var command_str = '';
